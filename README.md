@@ -14,3 +14,9 @@ Você estará inicializando dois containers:
 
 - Um para o banco de dados PostgreSQL que realiza a persistência de contas e transações
 - O contêiner da aplicação rodando por default na porta `3000`
+
+Você pode parar a execução dos contêiners com o comando:
+
+```bash
+docker-compose down
+```
