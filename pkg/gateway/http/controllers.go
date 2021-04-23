@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/WendelHime/transaction-routine/pkg/domain/models"
 	"github.com/WendelHime/transaction-routine/pkg/usecases"
@@ -19,6 +20,22 @@ type controller interface {
 	Accounts(w http.ResponseWriter, r *http.Request)
 	// Transactions create new transactions if receive a POST request
 	Transactions(w http.ResponseWriter, r *http.Request)
+}
+
+// Account represents an user account
+type Account struct {
+	ID             int    `json:"account_id"`
+	DocumentNumber string `json:"document_number"`
+}
+
+// Transaction represents a transaction executed by the user related to an
+// account
+type Transaction struct {
+	ID        int                  `json:"transaction_id"`
+	AccountID int                  `json:"account_id"`
+	Operation models.OperationType `json:"operation_type_id"`
+	Amount    float64              `json:"amount"`
+	EventDate time.Time
 }
 
 // App the http app to be executed
@@ -52,10 +69,14 @@ func (h *App) getAccount(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "internal server error: %v", err)
 		return
 	}
+	account := &Account{
+		ID:             acc.ID,
+		DocumentNumber: acc.DocumentNumber,
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
-	err = json.NewEncoder(w).Encode(acc)
+	err = json.NewEncoder(w).Encode(account)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "internal server error: %v", err)
@@ -72,8 +93,8 @@ func (h *App) createAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var account *models.Account
-	err := json.NewDecoder(r.Body).Decode(&account)
+	var acc *Account
+	err := json.NewDecoder(r.Body).Decode(&acc)
 	if err != nil {
 		log.Printf("fail parsing account json: %+v", err)
 		w.WriteHeader(http.StatusBadRequest)
@@ -81,20 +102,23 @@ func (h *App) createAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if account == nil {
+	if acc == nil {
 		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprint(w, "bad request")
 		return
 	}
+
+	account := &models.Account{DocumentNumber: acc.DocumentNumber}
 	err = h.accountCreator.CreateAccount(account)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "internal server error: %v", err)
 		return
 	}
+	acc.ID = account.ID
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
-	err = json.NewEncoder(w).Encode(account)
+	err = json.NewEncoder(w).Encode(acc)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "internal server error: %v", err)
@@ -109,8 +133,8 @@ func (h *App) createTransaction(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, "unsupported media type")
 		return
 	}
-	var transaction *models.Transaction
-	err := json.NewDecoder(r.Body).Decode(&transaction)
+	var trans *Transaction
+	err := json.NewDecoder(r.Body).Decode(&trans)
 	if err != nil {
 		log.Printf("fail parsing transaction json: %+v", err)
 		w.WriteHeader(http.StatusBadRequest)
@@ -118,10 +142,17 @@ func (h *App) createTransaction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if transaction == nil {
+	if trans == nil {
 		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprint(w, "bad request")
 		return
+	}
+	transaction := &models.Transaction{
+		Account: models.Account{
+			ID: trans.AccountID,
+		},
+		Operation: trans.Operation,
+		Amount:    trans.Amount,
 	}
 	err = h.transactionCreator.CreateTransaction(transaction)
 	if err != nil {
@@ -129,9 +160,12 @@ func (h *App) createTransaction(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "internal server error: %v", err)
 		return
 	}
+
+	trans.ID = transaction.ID
+	trans.EventDate = transaction.EventDate
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
-	err = json.NewEncoder(w).Encode(transaction)
+	err = json.NewEncoder(w).Encode(trans)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "internal server error: %v", err)
