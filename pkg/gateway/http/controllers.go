@@ -7,7 +7,6 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/WendelHime/transaction-routine/pkg/domain/models"
 	"github.com/WendelHime/transaction-routine/pkg/usecases"
@@ -20,22 +19,6 @@ type controller interface {
 	Accounts(w http.ResponseWriter, r *http.Request)
 	// Transactions create new transactions if receive a POST request
 	Transactions(w http.ResponseWriter, r *http.Request)
-}
-
-// Account represents an user account
-type Account struct {
-	ID             int    `json:"account_id"`
-	DocumentNumber string `json:"document_number"`
-}
-
-// Transaction represents a transaction executed by the user related to an
-// account
-type Transaction struct {
-	ID        int                  `json:"transaction_id"`
-	AccountID int                  `json:"account_id"`
-	Operation models.OperationType `json:"operation_type_id"`
-	Amount    float64              `json:"amount"`
-	EventDate time.Time
 }
 
 // App the http app to be executed
