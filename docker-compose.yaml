@@ -1,0 +1,25 @@
+version: '3.7'
+services:
+  db:
+    image: postgres:12-alpine
+    restart: always
+    volumes:
+      - ./sql:/docker-entrypoint-initdb.d/
+    environment:
+      - POSTGRES_USER=docker
+      - POSTGRES_PASSWORD=docker
+      - POSTGRES_DB=routine
+    ports:
+      - 5432:5432
+  backend:
+    build: .
+    ports:
+      - 3000:3000
+    environment:
+      - DBPASS=docker
+      - DBUSER=docker
+      - DBNAME=routine
+      - DBHOST=127.0.0.1
+      - DBPORT=5432
+    depends_on:
+      - db
