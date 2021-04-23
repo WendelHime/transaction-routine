@@ -19,7 +19,7 @@ services:
       - DBPASS=docker
       - DBUSER=docker
       - DBNAME=routine
-      - DBHOST=127.0.0.1
+      - DBHOST=db
       - DBPORT=5432
     depends_on:
       - db
