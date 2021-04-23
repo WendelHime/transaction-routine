@@ -24,10 +24,10 @@ func (r *transactionRepository) Create(transaction *models.Transaction) error {
 
 	err = db.QueryRow(
 		`INSERT INTO transactions(account_id, operationtype_id, amount)
-		VALUES ($1, $2, $3) RETURNING id`,
+		VALUES ($1, $2, $3) RETURNING id, event_date `,
 		transaction.Account.ID,
 		transaction.Operation,
-		transaction.Amount).Scan(&transaction.ID)
+		transaction.Amount).Scan(&transaction.ID, &transaction.EventDate)
 	if err != nil {
 		return err
 	}
