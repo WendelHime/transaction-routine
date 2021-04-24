@@ -1,6 +1,7 @@
 CREATE TABLE accounts(
     id SERIAL PRIMARY KEY NOT NULL,
-    document_number VARCHAR(11) NOT NULL
+    document_number VARCHAR(11) NOT NULL,
+    available_credit_limit NUMERIC(1000, 2) NOT NULL
 );
 CREATE TABLE operation_types(
     id SERIAL PRIMARY KEY NOT NULL,

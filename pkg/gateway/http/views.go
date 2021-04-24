@@ -8,8 +8,9 @@ import (
 
 // Account represents an user account
 type Account struct {
-	ID             int    `json:"account_id"`
-	DocumentNumber string `json:"document_number"`
+	ID                   int     `json:"account_id"`
+	DocumentNumber       string  `json:"document_number"`
+	AvailableCreditLimit float64 `json:"available_credit_limit"`
 }
 
 // Transaction represents a transaction executed by the user related to an

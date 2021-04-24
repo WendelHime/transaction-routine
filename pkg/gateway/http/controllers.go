@@ -53,8 +53,9 @@ func (h *App) getAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	account := &Account{
-		ID:             acc.ID,
-		DocumentNumber: acc.DocumentNumber,
+		ID:                   acc.ID,
+		DocumentNumber:       acc.DocumentNumber,
+		AvailableCreditLimit: acc.AvailableCreditLimit,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -91,7 +92,7 @@ func (h *App) createAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	account := &models.Account{DocumentNumber: acc.DocumentNumber}
+	account := &models.Account{DocumentNumber: acc.DocumentNumber, AvailableCreditLimit: acc.AvailableCreditLimit}
 	err = h.accountCreator.CreateAccount(account)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)

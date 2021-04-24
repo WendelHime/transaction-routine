@@ -10,13 +10,17 @@ import (
 // AccountService interact with implementations validating args before
 // applying
 type AccountService struct {
-	creator interfaces.AccountCreator
-	getter  interfaces.AccountGetter
+	creator            interfaces.AccountCreator
+	getter             interfaces.AccountGetter
+	creditLimitUpdater interfaces.CreditLimitUpdater
 }
 
 // NewAccountService build a new account service
-func NewAccountService(creator interfaces.AccountCreator, getter interfaces.AccountGetter) *AccountService {
-	return &AccountService{creator: creator, getter: getter}
+func NewAccountService(
+	creator interfaces.AccountCreator,
+	getter interfaces.AccountGetter,
+	creditLimitUpdater interfaces.CreditLimitUpdater) *AccountService {
+	return &AccountService{creator: creator, getter: getter, creditLimitUpdater: creditLimitUpdater}
 }
 
 // Create register an account on persistence if supplied account is valid.
@@ -36,4 +40,12 @@ func (s *AccountService) Get(accountID int) (*models.Account, error) {
 	}
 
 	return s.getter.Get(accountID)
+}
+
+// UpdateCreditLimit check if it's valid account and perform credit limit update
+func (s *AccountService) UpdateCreditLimit(acc *models.Account) error {
+	if acc.ID <= 0 {
+		return models.ErrMissingRequiredField
+	}
+	return s.creditLimitUpdater.UpdateCreditLimit(acc)
 }

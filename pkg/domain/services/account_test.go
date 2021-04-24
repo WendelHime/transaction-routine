@@ -19,8 +19,13 @@ func (u *accRepo) Get(accountID int) (*models.Account, error) {
 	return nil, nil
 }
 
+// UpdateCreditLimit update credit limit from account on persistence service
+func (u *accRepo) UpdateCreditLimit(account *models.Account) error {
+	return nil
+}
+
 func TestCreateAccount(t *testing.T) {
-	serv := NewAccountService(new(accRepo), new(accRepo))
+	serv := NewAccountService(new(accRepo), new(accRepo), new(accRepo))
 	var tests = []struct {
 		name     string
 		expected error
@@ -42,7 +47,7 @@ func TestCreateAccount(t *testing.T) {
 }
 
 func TestGetAccount(t *testing.T) {
-	serv := NewAccountService(new(accRepo), new(accRepo))
+	serv := NewAccountService(new(accRepo), new(accRepo), new(accRepo))
 	var tests = []struct {
 		name     string
 		expected error
@@ -57,6 +62,28 @@ func TestGetAccount(t *testing.T) {
 			_, actual := serv.Get(tt.given)
 			if actual != tt.expected {
 				t.Errorf("(%d): expected %s, actual %s", tt.given, tt.expected, actual)
+			}
+
+		})
+	}
+}
+
+func TestUpdateCreditLimit(t *testing.T) {
+	serv := NewAccountService(new(accRepo), new(accRepo), new(accRepo))
+	var tests = []struct {
+		name     string
+		expected error
+		given    *models.Account
+	}{
+		{"invalid account id", models.ErrMissingRequiredField, new(models.Account)},
+		{"success", nil, &models.Account{ID: 1}},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			actual := serv.UpdateCreditLimit(tt.given)
+			if actual != tt.expected {
+				t.Errorf("(%+v): expected %s, actual %s", tt.given, tt.expected, actual)
 			}
 
 		})

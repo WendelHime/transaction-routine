@@ -6,8 +6,9 @@ import "time"
 
 // Account represents an user account
 type Account struct {
-	ID             int
-	DocumentNumber string
+	ID                   int
+	DocumentNumber       string
+	AvailableCreditLimit float64
 }
 
 // OperationType represents a enum type for operations

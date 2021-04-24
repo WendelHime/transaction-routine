@@ -21,3 +21,10 @@ type TransactionCreator interface {
 	// Create register a transaction on persistence service
 	Create(transaction *models.Transaction) error
 }
+
+// CreditLimitUpdater represents an interface for exclusive credit limit update
+// on account persistence
+type CreditLimitUpdater interface {
+	// UpdateCreditLimit update credit limit from account on persistence service
+	UpdateCreditLimit(account *models.Account) error
+}

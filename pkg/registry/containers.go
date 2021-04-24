@@ -59,7 +59,7 @@ func NewAccountCreatorContainer(
 			Name: "accountCreator",
 			Build: func(ctn di.Container) (interface{}, error) {
 				conn := ctn.Get("pgConnection").(*postgres.Connection)
-				return usecases.NewUCAccountCreator(services.NewAccountService(postgres.NewAccountCreator(conn), nil)), nil
+				return usecases.NewUCAccountCreator(services.NewAccountService(postgres.NewAccountCreator(conn), nil, nil)), nil
 			},
 		},
 	}
@@ -85,7 +85,7 @@ func NewAccountGetterContainer(
 			Name: "accountGetter",
 			Build: func(ctn di.Container) (interface{}, error) {
 				conn := ctn.Get("pgConnection").(*postgres.Connection)
-				return usecases.NewUCAccountGetter(services.NewAccountService(nil, postgres.NewAccountGetter(conn))), nil
+				return usecases.NewUCAccountGetter(services.NewAccountService(nil, postgres.NewAccountGetter(conn), nil)), nil
 			},
 		},
 	}
@@ -111,7 +111,7 @@ func NewTransactionCreatorContainer(
 			Name: "transactionCreator",
 			Build: func(ctn di.Container) (interface{}, error) {
 				conn := ctn.Get("pgConnection").(*postgres.Connection)
-				return usecases.NewUCTransactionCreator(services.NewTransactionService(postgres.NewTransactionCreator(conn))), nil
+				return usecases.NewUCTransactionCreator(services.NewTransactionService(postgres.NewTransactionCreator(conn)), services.NewAccountService(nil, postgres.NewAccountGetter(conn), postgres.NewAccountCreditLimitUpdater(conn))), nil
 			},
 		},
 	}
